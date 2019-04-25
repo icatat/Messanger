@@ -1,13 +1,80 @@
 import java.io.*;
 import java.net.*;
-class TCPClient {
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import javax.swing.*;
+
+class TCPClient implements Runnable{
+
+    public JTextField tx;
+    public JTextArea ta;
+    public String sentence;
+    public String modifiedSentence;
+
+    public Socket clientSocket;
+    public DataOutputStream outToServer;
+    public BufferedReader inFromServer;
+
+    public String username;
+
+    public TCPClient(String username) {
+        this.username = username;
+        JFrame f=new JFrame("my chat");
+        f.setSize(400,400);
+
+        JPanel p1=new JPanel();
+        p1.setLayout(new BorderLayout());
+
+        JPanel p2=new JPanel();
+        p2.setLayout(new BorderLayout());
 
 
-    public static void LogIn(BufferedReader inFromUser, DataOutputStream outToServer,  BufferedReader inFromServer) throws Exception{
-        System.out.println("Please enter your username: \n");
-        String sentence = inFromUser.readLine();
-        outToServer.writeBytes("Login " + sentence + "\n");
-        String modifiedSentence = inFromServer.readLine();
+        tx = new JTextField();
+        ta = new JTextArea();
+
+        try {
+            clientSocket = new Socket("172.18.58.157", 5000);
+            outToServer = new DataOutputStream(clientSocket.getOutputStream());
+            inFromServer =new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+        } catch (Exception e) {
+            System.out.println("oops, error");
+
+        }
+
+        p1.add(tx, BorderLayout.CENTER);
+
+        JButton b1=new JButton("Send");
+        p1.add(b1, BorderLayout.EAST);
+
+
+        p2.add(ta, BorderLayout.CENTER);
+        p2.add(p1, BorderLayout.SOUTH);
+
+        f.setContentPane(p2);
+
+        b1.addActionListener(new ActionListener(){
+             public void actionPerformed(ActionEvent ev){
+                 String s = tx.getText() + "\r\n";
+                 tx.setText("");
+                 try{
+                     outToServer.writeBytes(s);
+                     outToServer.flush();
+                 }catch(Exception e){e.printStackTrace();}
+             }
+         }
+        );
+
+        f.setVisible(true);
+    }
+
+
+    public void LogIn(String username) throws Exception{
+        outToServer.writeBytes("Login:" + username + "\r\n");
+        outToServer.flush();
+         String modifiedSentence = inFromServer.readLine();
+         ta.append(modifiedSentence);
     }
 
     public void LogOut() {
@@ -24,32 +91,30 @@ class TCPClient {
     }
 
 
+    public void run(){
+        try{
+            this.LogIn(username);
+            while(true) {
+                String serverMsg = "";
+                serverMsg = inFromServer.readLine();
+                ta.append(serverMsg + "\n");
+            }
+
+        }catch(Exception e){e.printStackTrace();}
+    }
+
+
     public static void main(String argv[]) throws Exception
     {
-        String sentence;
-        String modifiedSentence;
-
-        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-
-        Socket clientSocket = new Socket("172.18.58.157", 5000);
-        DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-        BufferedReader inFromServer =new BufferedReader(new InputStreamReader(
-                clientSocket.getInputStream()));
-
-        LogIn(inFromUser, outToServer, inFromServer);
-
-        while (true) {
-
-            System.out.println("Please enter the text that you want to send to the server \n");
-
-            sentence = inFromUser.readLine();
-
-            outToServer.writeBytes(sentence + "\r\n");
-
-            modifiedSentence = inFromServer.readLine();
-
-            System.out.println("RECEIVED FROM SERVER: " + modifiedSentence);
+        String username = argv[0];
+        try {
+            TCPClient client = new TCPClient(username);
+            Thread chat = new Thread(client);
+            chat.start();
+        } catch (Exception e) {
+            System.out.println("Oppps");
         }
+
 
 
     }
