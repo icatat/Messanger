@@ -29,7 +29,7 @@ public class ServeRequest implements Runnable {
             currentActiveUsers.append(name);
             currentActiveUsers.append(" ");
         }
-        os.writeBytes(currentActiveUsers.toString());
+        os.writeBytes("Active Users: " + currentActiveUsers.toString() + "\n\r\n");
     }
 
     public void connects( String to, String from) throws Exception {
@@ -38,16 +38,28 @@ public class ServeRequest implements Runnable {
     }
 
     public void sendOneToOneMessage(String message, String currentUser) throws Exception{
-            message = currentUser + ": " + message + "\r\n";
-            String to = oneToOneChats.get(currentUser);
-            activeUsers.get(to).writeBytes(message);
+        String toMessage = currentUser + ": " + message + "\n\r\n";
+        String fromMessage = "Me: " + message + "\n\r\n";
+
+        String to = oneToOneChats.get(currentUser);
+        String from = currentUser;
+
+        activeUsers.get(from).writeBytes(fromMessage);
+        activeUsers.get(to).writeBytes(toMessage);
     }
 
-    public void sendToGroup(String message, String curName) throws Exception{
+    public void sendToGroup(String message, String currentUser) throws Exception{
+        message = message + "\n\r\n";
+
+        String toMessage = currentUser + ": " + message + "\n\r\n";
+        String fromMessage = "Me: " + message + "\n\r\n";
+
         for(String name: activeUsers.keySet()) {
-            if(name.equals(curName)) continue;
-            message = message + "\r\n";
-            activeUsers.get(name).writeBytes(message);
+            if(name.equals(currentUser)) {
+                activeUsers.get(name).writeBytes(fromMessage);
+            } else {
+                activeUsers.get(name).writeBytes(toMessage);
+            }
         }
     }
     // Constructor
@@ -83,8 +95,6 @@ public class ServeRequest implements Runnable {
             } else {
                 command = msg;
             }
-
-            System.out.println(command);
             String commandMessage = msg.substring(indexOfColon + 1, msg.length());
             if (command.equals("Login")) {
                 curName = msg.substring(indexOfColon + 1, msg.length());
@@ -101,16 +111,16 @@ public class ServeRequest implements Runnable {
                 sendOneToOneMessage(command, curName);
             }
 
-
-//Print message received from client
-            System.out.println("Received from client: ");
-            System.out.println(msg);
-//convert message to upper case
-            String outputMsg = msg.toUpperCase();
-//Send modified msg back to client (write to socket)
-            os.writeBytes(outputMsg);
-            os.writeBytes("\r\n");
-            System.out.println("Sent to client: ");
+//
+////Print message received from client
+//            System.out.println("Received from client: ");
+//            System.out.println(msg);
+////convert message to upper case
+//            String outputMsg = msg.toUpperCase();
+////Send modified msg back to client (write to socket)
+//            os.writeBytes(outputMsg);
+//            os.writeBytes("\r\n");
+//            System.out.println("Sent to client: ");
         }
     }
 }
