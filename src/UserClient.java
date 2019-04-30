@@ -74,6 +74,7 @@ class UserClient implements Runnable{
         p2.add(p1, BorderLayout.SOUTH);
 
 
+
         f.setContentPane(p2);
 
         b1.addActionListener(new ActionListener() {
@@ -123,12 +124,12 @@ class UserClient implements Runnable{
 //        outToP2PDest.writeBytes("Login:" + usernameFrom + "\r\n");
 //        outToP2PDest.flush();
 
-        outToP2PCur.writeBytes("Login:" + usernameFrom + "\r\n");
+        outToP2PCur.writeBytes("Login:" + usernameFrom+ "\r\n");
         outToP2PCur.flush();
 
-        outToP2PDest.writeBytes("Login:" + usernameTo + "\r\n");
+        outToP2PDest.writeBytes("Login:" + usernameFrom+ "\r\n");
         outToP2PDest.flush();
-//
+
 //        outToP2PCur.writeBytes("Login:" + usernameTo + "\r\n");
 //        outToP2PCur.flush();
 
