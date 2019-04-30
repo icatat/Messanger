@@ -142,7 +142,7 @@ public class ServeRequest implements Runnable {
                 connects(to, from, os);
 
             } else if (command.equals("SendAll")) {
-                sendAll(command, curName);
+                sendAll(payload, curName);
 
             } else if (command.equals("Group")) {
                 String groupName = msg.substring(indexOfColon + 1, msg.length());
@@ -154,10 +154,9 @@ public class ServeRequest implements Runnable {
 
             } else {
 
-//            String outputMsg = msg.toUpperCase();
-//            os.writeBytes(outputMsg);
-//            os.writeBytes("\r\n");
-//            System.out.println("Sent to client: ");
+            String outputMsg = msg.toUpperCase();
+            os.writeBytes("Are you talking to yourself? HAHA: " + outputMsg);
+            os.writeBytes("\r\n");
             }
         }
     }

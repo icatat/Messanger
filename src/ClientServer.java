@@ -59,9 +59,13 @@ public class ClientServer implements Runnable{
             if (command.equals("Login")) {
                 LogIn(payload, osSender);
             } else {
-                System.out.println(command);
-
-                activeUsers.get(command.toLowerCase()).writeBytes(payload + "\n\r\n");
+                String user = payload.substring(0, payload.indexOf(':'));
+                if(user.equals(command)) {
+                    String message = payload.substring(payload.indexOf(':') + 1, payload.length());
+                    activeUsers.get(command.toLowerCase()).writeBytes("Me: " + message + "\n\r\n");
+                } else {
+                    activeUsers.get(command.toLowerCase()).writeBytes(payload + "\n\r\n");
+                }
             }
 //
 //            String outputMsg = msg.toUpperCase();

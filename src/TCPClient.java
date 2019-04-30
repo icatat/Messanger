@@ -15,8 +15,6 @@ class TCPClient implements Runnable{
     public JTextField tx;
     public JTextArea ta;
     public JTextArea activeTextArea;
-    public String sentence;
-    public String modifiedSentence;
 
     public Socket clientSocket;
     public ServerSocket serverSocket;
@@ -32,7 +30,7 @@ class TCPClient implements Runnable{
 
         this.username = username;
         this.port = port;
-        this.addr = InetAddress.getLocalHost();
+        this.addr = InetAddress.getLocalHost(); //
 
         Random r = new Random();
         this.serverSidePort = r.nextInt(6000) + 3000; //needs to match the server we want to connect to

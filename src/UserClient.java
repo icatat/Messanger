@@ -122,16 +122,6 @@ class UserClient implements Runnable{
         outToP2PCur.writeBytes("Login:" + usernameFrom + " " + addr + " " + portDest + " \r\n");
         outToP2PCur.flush();
 
-//
-//        outToP2PDest.writeBytes("Login:" + usernameTo + " " + addr + " " + portCur + " \r\n");
-//        outToP2PDest.flush();
-//        outToP2PCur.writeBytes("Login:" + usernameTo + " " + addr + " " + portDest + " \r\n");
-//        outToP2PCur.flush();
-//
-//        outToP2PDest.writeBytes("Login:" + usernameFrom + " " + addr + " " + portDest + " \r\n");
-//        outToP2PDest.flush();
-//        outToP2PCur.writeBytes("Login:" + usernameTo + " " + addr + " " + portDest + " \r\n");
-//        outToP2PCur.flush();
     }
 
 
