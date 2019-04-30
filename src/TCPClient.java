@@ -24,7 +24,6 @@ class TCPClient implements Runnable{
     public int port;
     public InetAddress addr;
     public int serverSidePort;
-    public static HashMap<String, DataOutputStream> activeUsers = new HashMap<String, DataOutputStream>();
 
     public TCPClient(String username, int port) throws Exception{
 
@@ -56,7 +55,6 @@ class TCPClient implements Runnable{
         try {
             clientSocket = new Socket(this.addr, port);
             serverSocket = new ServerSocket(serverSidePort);
-            this.activeUsers.put(this.username, new DataOutputStream(clientSocket.getOutputStream()));
             outToServer = new DataOutputStream(clientSocket.getOutputStream());
             inFromServer =new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
@@ -120,16 +118,10 @@ class TCPClient implements Runnable{
                         try {
                             String payload = serverMsg.substring(index + 1, serverMsg.length());
                             String[] commands = payload.split(" ");
-                            if(!activeUsers.keySet().contains(commands[0].toLowerCase())) {
-                                //Ip Address of the iser I want to connect to
-                                String ipAddress = commands[1].substring(commands[1].indexOf('/') + 1, commands[1].length());
-                                UserClient client = new UserClient(this.username + "to" + commands[0], this.username, commands[0], InetAddress.getByName(ipAddress), Integer.parseInt(commands[2]), this.serverSidePort);
-                                activeUsers.put((this.username + "to" + commands[0]).toLowerCase(), new DataOutputStream(client.clientSocket.getOutputStream()));
-                                Thread clientThread = new Thread(client);
-                                clientThread.start();
-                            } else {
-                                activeUsers.get((this.username + "to" + commands[0]).toLowerCase()).writeBytes(payload);
-                            }
+                            String ipAddress = commands[1].substring(commands[1].indexOf('/') + 1, commands[1].length());
+                            UserClient client = new UserClient(this.username + "to" + commands[0], this.username, commands[0], InetAddress.getByName(ipAddress), Integer.parseInt(commands[2]), this.serverSidePort);
+                            Thread clientThread = new Thread(client);
+                            clientThread.start();
                         } catch (Exception e) {
                             System.out.println("Problem connecting to P2P Server");
                         }

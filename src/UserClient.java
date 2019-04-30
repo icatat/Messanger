@@ -54,10 +54,10 @@ class UserClient implements Runnable{
         activeTextArea = new JTextArea(10, 10);
         JScrollPane scrollPane = new JScrollPane(activeUsers);
         try {
-            clientSocket = new Socket(InetAddress.getLocalHost(), portDest); //where you are sending the data to the P2P server
-            serverSocket = new Socket(addr, portCur); //send the other server
-            outToP2PCur = new DataOutputStream(clientSocket.getOutputStream()); //communicate with the other one
-            outToP2PDest = new DataOutputStream(serverSocket.getOutputStream()); //communicate with yourself
+            clientSocket = new Socket(addr, portDest); //where you are sending the data to the P2P server
+            serverSocket = new Socket(InetAddress.getLocalHost(), portCur); //send the other server
+            outToP2PCur = new DataOutputStream(clientSocket.getOutputStream());
+            outToP2PDest = new DataOutputStream(serverSocket.getOutputStream());
             inFromP2P = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));//the messages that come through the connection from the client Socket
         } catch (Exception e) {
             System.out.println("Problem initiating clientSocket, outToServer, inFromServer");
@@ -79,12 +79,17 @@ class UserClient implements Runnable{
         b1.addActionListener(new ActionListener() {
                  public void actionPerformed(ActionEvent ev) {
                      String cur = usernameFrom + ":" + usernameFrom + ":" + tx.getText() + "\r\n";
-                     String dest = usernameTo+ ":"  + usernameFrom + ":" + tx.getText() + "\r\n";
+                     String dest = usernameFrom+ ":"  + usernameTo + ":" + tx.getText() + "\r\n";
                      tx.setText("");
                      try {
                          outToP2PCur.writeBytes(cur);
                          outToP2PCur.flush();
                          outToP2PDest.writeBytes(dest);
+                         outToP2PDest.flush();
+
+                         outToP2PCur.writeBytes(dest);
+                         outToP2PCur.flush();
+                         outToP2PDest.writeBytes(cur);
                          outToP2PDest.flush();
                      } catch (Exception e) {
                          e.printStackTrace();
@@ -115,11 +120,17 @@ class UserClient implements Runnable{
     }
 
     public void LogIn() throws Exception{
-        outToP2PDest.writeBytes("Login:" + usernameFrom + "\r\n");
-        outToP2PDest.flush();
+//        outToP2PDest.writeBytes("Login:" + usernameFrom + "\r\n");
+//        outToP2PDest.flush();
 
         outToP2PCur.writeBytes("Login:" + usernameFrom + "\r\n");
         outToP2PCur.flush();
+
+        outToP2PDest.writeBytes("Login:" + usernameTo + "\r\n");
+        outToP2PDest.flush();
+//
+//        outToP2PCur.writeBytes("Login:" + usernameTo + "\r\n");
+//        outToP2PCur.flush();
 
     }
 
