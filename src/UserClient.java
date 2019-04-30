@@ -33,7 +33,7 @@ class UserClient implements Runnable{
         this.usernameFrom = (to + "to" + from).toLowerCase();
         this.portDest = portDest;
         this.portCur = portCur;
-        this.addr = InetAddress.getLocalHost();
+        this.addr = addr;
 
         JFrame f = new JFrame(username);
         f.setSize(600, 400);

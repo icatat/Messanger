@@ -30,7 +30,7 @@ class TCPClient implements Runnable{
 
         this.username = username;
         this.port = port;
-        this.addr = InetAddress.getLocalHost(); //
+        this.addr = InetAddress.getByName("172.18.58.157"); //
 
         Random r = new Random();
         this.serverSidePort = r.nextInt(6000) + 3000; //needs to match the server we want to connect to
@@ -121,7 +121,8 @@ class TCPClient implements Runnable{
                             String payload = serverMsg.substring(index + 1, serverMsg.length());
                             String[] commands = payload.split(" ");
                             if(!activeUsers.keySet().contains(commands[0].toLowerCase())) {
-                                UserClient client = new UserClient(this.username + "to" + commands[0], this.username, commands[0], InetAddress.getLocalHost(), Integer.parseInt(commands[2]), this.serverSidePort);
+                                String ipAddress = commands[1].substring(commands[1].indexOf('/') + 1, commands[1].length());
+                                UserClient client = new UserClient(this.username + "to" + commands[0], this.username, commands[0], InetAddress.getByName(ipAddress), Integer.parseInt(commands[2]), this.serverSidePort);
                                 activeUsers.put((this.username + "to" + commands[0]).toLowerCase(), new DataOutputStream(client.clientSocket.getOutputStream()));
                                 Thread clientThread = new Thread(client);
                                 clientThread.start();
