@@ -92,11 +92,6 @@ public class ServeRequest implements Runnable {
         }
     }
 
-    public void sendMessageToGroup(String groupName, String message) {
-
-    }
-
-
     // Implement the run() method of the Runnable interface.
     public void run() {
         try {

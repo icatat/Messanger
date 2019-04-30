@@ -54,7 +54,7 @@ class TCPClient implements Runnable{
         activeTextArea = new JTextArea(10, 10);
         JScrollPane scrollPane = new JScrollPane(activeUsers);
         try {
-            clientSocket = new Socket(addr, port);
+            clientSocket = new Socket(this.addr, port);
             serverSocket = new ServerSocket(serverSidePort);
             this.activeUsers.put(this.username, new DataOutputStream(clientSocket.getOutputStream()));
             outToServer = new DataOutputStream(clientSocket.getOutputStream());
@@ -94,7 +94,7 @@ class TCPClient implements Runnable{
 
 
     public void LogIn() throws Exception{
-        outToServer.writeBytes("Login:" + username + " " + addr + " " + serverSidePort + " \r\n");
+        outToServer.writeBytes("Login:" + username + " " + InetAddress.getLocalHost() + " " + serverSidePort + " \r\n");
         outToServer.flush();
     }
 
@@ -121,13 +121,13 @@ class TCPClient implements Runnable{
                             String payload = serverMsg.substring(index + 1, serverMsg.length());
                             String[] commands = payload.split(" ");
                             if(!activeUsers.keySet().contains(commands[0].toLowerCase())) {
+                                //Ip Address of the iser I want to connect to
                                 String ipAddress = commands[1].substring(commands[1].indexOf('/') + 1, commands[1].length());
                                 UserClient client = new UserClient(this.username + "to" + commands[0], this.username, commands[0], InetAddress.getByName(ipAddress), Integer.parseInt(commands[2]), this.serverSidePort);
                                 activeUsers.put((this.username + "to" + commands[0]).toLowerCase(), new DataOutputStream(client.clientSocket.getOutputStream()));
                                 Thread clientThread = new Thread(client);
                                 clientThread.start();
                             } else {
-                                System.out.println("HEREEE");
                                 activeUsers.get((this.username + "to" + commands[0]).toLowerCase()).writeBytes(payload);
                             }
                         } catch (Exception e) {
@@ -160,13 +160,12 @@ class TCPClient implements Runnable{
 
         while (true) {
             System.out.println("Waiting...");
-            Socket connection = client.serverSocket.accept();
-            ClientServer request = new ClientServer(client.clientSocket, connection); // the name of the chat is the name of the person contacted
+            Socket connection = client.serverSocket.accept(); //the  server socket to receive messages through P2P
+            //clientSocket
+            ClientServer request = new ClientServer(connection); // the name of the chat is the name of the person contacted
             Thread thread = new Thread(request);
             thread.start();
         }
-
-
 
     }
 }
