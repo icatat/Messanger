@@ -44,7 +44,7 @@ public class ClientServer implements Runnable{
 
         while (true) {
             String msg = br.readLine();
-
+            System.out.println(msg);
             int indexOfColon = msg.indexOf(':');
             String command = "";
             if (indexOfColon != -1) {
@@ -55,7 +55,7 @@ public class ClientServer implements Runnable{
             String payload = msg.substring(indexOfColon + 1, msg.length());
             if (command.equals("Login")) {
                 LogIn(payload, osSender);
-            } else {
+            } else if(activeUsers.containsKey(command)){
                 String user = payload.substring(0, payload.indexOf(':'));
                 if(user.equals(command)) {
                     //Write to Self

@@ -119,6 +119,7 @@ class TCPClient implements Runnable{
                             String payload = serverMsg.substring(index + 1, serverMsg.length());
                             String[] commands = payload.split(" ");
                             String ipAddress = commands[1].substring(commands[1].indexOf('/') + 1, commands[1].length());
+                            System.out.println(ipAddress);
                             UserClient client = new UserClient(this.username + "to" + commands[0], this.username, commands[0], InetAddress.getByName(ipAddress), Integer.parseInt(commands[2]), this.serverSidePort);
                             Thread clientThread = new Thread(client);
                             clientThread.start();
