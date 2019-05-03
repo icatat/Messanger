@@ -19,21 +19,38 @@ class UserClient implements Runnable{
     public DataOutputStream outToP2PDest;
     public DataOutputStream outToP2PCur;
     public BufferedReader inFromP2P;
+    public BufferedReader inFromP2PCur;
     public String username;
     public String usernameTo;
     public String usernameFrom;
     public int portDest;
     public int portCur;
     public InetAddress addr;
+//    public String to;
+//    public String from;
+
+    /**
+     *
+     * @param username - is of the format 'from/to' and gives the name of the new opening chat. The 'from' indicates the current
+     *                 user for which we are opening the chat, and 'to' indicates the user to which the current user is sending mesages
+     * @param from - the current user sending messages
+     * @param to - the user we are sending messages to
+     * @param addr - the IP address of the 'to' user (the user we are sending messages to)
+     * @param portDest - the port number of the 'to' user, to which we are sending packages
+     * @param portCur - the port number of the 'from' (current) user, so that we can send the messages to their own server as well, to be shown on the screen
+     * @throws Exception
+     */
 
     public UserClient(String username, String from, String to, InetAddress addr, int portDest, int portCur) throws Exception {
 
         this.username = username;
-        this.usernameTo = (from + "to" + to).toLowerCase();
-        this.usernameFrom = (to + "to" + from).toLowerCase();
+        this.usernameTo = (from + "/" + to).toLowerCase();
+        this.usernameFrom = (to + "/" + from).toLowerCase();
         this.portDest = portDest;
         this.portCur = portCur;
-        this.addr = addr;
+        this.addr = addr; //the other user's address
+//        this.to = to;
+//        this.from = from;
 
         JFrame f = new JFrame(username);
         f.setSize(600, 400);
@@ -53,18 +70,18 @@ class UserClient implements Runnable{
         ta = new JTextArea();
         activeTextArea = new JTextArea(10, 10);
 
-        System.out.println(addr.getAddress());
-        JScrollPane scrollPane = new JScrollPane(activeUsers);
         try {
             clientSocket = new Socket(addr, portDest); //where you are sending the data to the P2P server
-            serverSocket = new Socket(addr, portCur); //send the other server
+            serverSocket = new Socket(InetAddress.getLocalHost(), portCur); //send the other server
             outToP2PDest = new DataOutputStream(clientSocket.getOutputStream());
             outToP2PCur = new DataOutputStream(serverSocket.getOutputStream());
             inFromP2P = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));//the messages that come through the connection from the client Socket
+            inFromP2PCur = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
         } catch (Exception e) {
             System.out.println("Problem initiating clientSocket, outToServer, inFromServer");
         }
 
+        // UI
         p1.add(tx, BorderLayout.CENTER);
         JButton b1 = new JButton("Send");
         p1.add(b1, BorderLayout.EAST);
@@ -76,24 +93,25 @@ class UserClient implements Runnable{
         p2.add(p1, BorderLayout.SOUTH);
 
 
-
         f.setContentPane(p2);
 
+
+        // make the button send messages to both the to and the cur user
         b1.addActionListener(new ActionListener() {
                  public void actionPerformed(ActionEvent ev) {
-                     String cur = usernameFrom + ":" + usernameFrom + ":" + tx.getText() + "\r\n";
-                     String dest = usernameTo  + ":"  + usernameFrom + ":" + tx.getText() + "\r\n";
+                     String dest = usernameFrom + ":" + "Me" + ":" + tx.getText() + "\r\n";
+                     String cur = usernameFrom  + ":"  + from + ":" + tx.getText() + "\r\n";
                      tx.setText("");
                      try {
-                         outToP2PCur.writeBytes(dest);
-                         outToP2PCur.flush();
-                         outToP2PDest.writeBytes(cur);
-                         outToP2PDest.flush();
-////
                          outToP2PCur.writeBytes(cur);
                          outToP2PCur.flush();
                          outToP2PDest.writeBytes(dest);
                          outToP2PDest.flush();
+////
+//                         outToP2PCur.writeBytes(cur);
+//                         outToP2PCur.flush();
+//                         outToP2PDest.writeBytes(dest);
+//                         outToP2PDest.flush();
                      } catch (Exception e) {
                          e.printStackTrace();
                      }
@@ -126,12 +144,12 @@ class UserClient implements Runnable{
         outToP2PDest.writeBytes("Login:" + usernameFrom + "\r\n");
         outToP2PDest.flush();
 
-//        outToP2PDest.writeBytes("Login:" + usernameTo+ "\r\n");
-//        outToP2PDest.flush();
+        outToP2PDest.writeBytes("Login:" + usernameTo+ "\r\n");
+        outToP2PDest.flush();
 
-        outToP2PCur.writeBytes("Login:" + usernameFrom+ "\r\n");
-        outToP2PCur.flush();
-
+//        outToP2PCur.writeBytes("Login:" + usernameFrom+ "\r\n");
+//        outToP2PCur.flush();
+//
 //        outToP2PCur.writeBytes("Login:" + usernameTo + "\r\n");
 //        outToP2PCur.flush();
 

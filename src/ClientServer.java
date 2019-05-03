@@ -43,6 +43,7 @@ public class ClientServer implements Runnable{
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
         while (true) {
+
             String msg = br.readLine();
             System.out.println(msg);
             int indexOfColon = msg.indexOf(':');
@@ -56,14 +57,7 @@ public class ClientServer implements Runnable{
             if (command.equals("Login")) {
                 LogIn(payload, osSender);
             } else if(activeUsers.containsKey(command)){
-                String user = payload.substring(0, payload.indexOf(':'));
-                if(user.equals(command)) {
-                    //Write to Self
-                    String message = payload.substring(payload.indexOf(':') + 1, payload.length());
-                    activeUsers.get(command.toLowerCase()).writeBytes("Me: " + message + "\n\r\n");
-                } else {
-                    activeUsers.get(command.toLowerCase()).writeBytes(payload + "\n\r\n");
-                }
+                    activeUsers.get(command).writeBytes(payload + "\n\r\n");
             }
         }
     }
