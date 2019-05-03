@@ -23,7 +23,6 @@ class UserClient implements Runnable{
     public DataOutputStream outToP2PDest;
     public DataOutputStream outToP2PCur;
     public BufferedReader inFromP2P;
-    public BufferedReader inFromP2PCur;
     public String username;
     public String usernameTo;
     public String usernameFrom;
@@ -75,10 +74,9 @@ class UserClient implements Runnable{
         try {
             clientSocket = new Socket(addr, portDest); //where you are sending the data to the P2P server
             serverSocket = new Socket(InetAddress.getLocalHost(), portCur); //send the other server
-            outToP2PDest = new DataOutputStream(clientSocket.getOutputStream()); // one output stream that goes to the current user
-            outToP2PCur = new DataOutputStream(serverSocket.getOutputStream()); ///one output stream that goes to the other user
+            outToP2PCur = new DataOutputStream(clientSocket.getOutputStream()); // one output stream that goes to the current user
+            outToP2PDest = new DataOutputStream(serverSocket.getOutputStream()); ///one output stream that goes to the other user
             inFromP2P = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));//the messages that come through the connection from the client Socket
-            inFromP2PCur = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
         } catch (Exception e) {
             System.out.println("Problem initiating clientSocket, outToServer, inFromServer");
         }
@@ -101,8 +99,8 @@ class UserClient implements Runnable{
         b1.addActionListener(new ActionListener() {
                  public void actionPerformed(ActionEvent ev) {
                      //Format the message for the appropriate user
-                     String dest = usernameFrom + ":" + "Me" + ":" + tx.getText() + "\r\n";
-                     String cur = usernameFrom  + ":"  + from + ":" + tx.getText() + "\r\n";
+                     String cur = usernameFrom + ":" + "Me" + ":" + tx.getText() + "\r\n";
+                     String dest = usernameFrom  + ":"  + from + ":" + tx.getText() + "\r\n";
                      tx.setText("");
                      try {
                          // Send the message to both the current user and to the user to the other end
@@ -146,11 +144,11 @@ class UserClient implements Runnable{
      * @throws Exception
      */
     public void LogIn() throws Exception{
-        outToP2PDest.writeBytes("Login:" + usernameFrom + "\r\n");
-        outToP2PDest.flush();
+        outToP2PCur.writeBytes("Login:" + usernameFrom + "\r\n");
+        outToP2PCur.flush();
 
-        outToP2PDest.writeBytes("Login:" + usernameTo+ "\r\n");
-        outToP2PDest.flush();
+        outToP2PCur.writeBytes("Login:" + usernameTo+ "\r\n");
+        outToP2PCur.flush();
 
 
     }
