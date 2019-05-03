@@ -6,7 +6,7 @@ public class IncomingRequest {
 
     public static void main(String argv[]) throws Exception {
 // Get the port number from the command line.
-        int port = (new Integer(argv[0])).intValue();
+        int port = 5000;
 // Establish the listen socket.
         ServerSocket socket = new ServerSocket(port);
 // Process incoming requests in an infinite loop.

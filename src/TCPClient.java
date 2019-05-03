@@ -25,11 +25,11 @@ class TCPClient implements Runnable{
     public InetAddress addr;
     public int serverSidePort;
 
-    public TCPClient(String username, int port) throws Exception{
+    public TCPClient(String username, int port, String ip) throws Exception{
 
         this.username = username;
         this.port = port;
-        this.addr = InetAddress.getByName("172.18.58.157"); //
+        this.addr = InetAddress.getByName(ip); //
 
         Random r = new Random();
         this.serverSidePort = r.nextInt(6000) + 3000; //needs to match the server we want to connect to
@@ -120,7 +120,7 @@ class TCPClient implements Runnable{
                             String[] commands = payload.split(" ");
                             String ipAddress = commands[1].substring(commands[1].indexOf('/') + 1, commands[1].length());
                             System.out.println(ipAddress);
-                            UserClient client = new UserClient(this.username + "to" + commands[0], this.username, commands[0], InetAddress.getByName(ipAddress), Integer.parseInt(commands[2]), this.serverSidePort);
+                            UserClient client = new UserClient(this.username + "/" + commands[0], this.username, commands[0], InetAddress.getByName(ipAddress), Integer.parseInt(commands[2]), this.serverSidePort);
                             Thread clientThread = new Thread(client);
                             clientThread.start();
                         } catch (Exception e) {
@@ -141,8 +141,9 @@ class TCPClient implements Runnable{
     public static void main(String argv[]) throws Exception
     {
         String username = argv[0];
+        String ip = argv[1];
         //Client thread to start  connecting to the server
-        TCPClient client = new TCPClient(username,5000);
+        TCPClient client = new TCPClient(username,5000, ip);
 
         try {
             Thread chat = new Thread(client);
