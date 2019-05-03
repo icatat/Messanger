@@ -10,6 +10,7 @@ import java.net.*;
 public class ClientServer implements Runnable{
     Socket socketSender;
 
+    // HashMap stores the username of teh users connected to the current user via P2P connection and their corresponding buffer
     public static HashMap<String, DataOutputStream> activeUsers = new HashMap<String, DataOutputStream>();
 
 
@@ -54,9 +55,13 @@ public class ClientServer implements Runnable{
                 command = msg;
             }
             String payload = msg.substring(indexOfColon + 1, msg.length());
+            // if a message with a Login prefix is received, then log in the yser
             if (command.equals("Login")) {
                 LogIn(payload, osSender);
+                //All the messages are going to have a user
+                //prefix in them , to be able to indetify where the data is coming from
             } else if(activeUsers.containsKey(command)){
+                // if the user is loggen in (theoretically, it should always be) sned the message to their output stream
                     activeUsers.get(command).writeBytes(payload + "\n\r\n");
             }
         }

@@ -3,10 +3,14 @@ import java.io.*;
 import java.net.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
 import javax.swing.*;
-import java.util.Random;
 
+/**
+ * Class that manages the client side of a P2P connection
+ * the UserClient are started in the TCPClient class, when we want to connect to another user via a P2P connection
+ * UserClient will connect to a ClientServer, that can be found in the TCPClient of the other user we want to connect to
+ * the window that pops up is cause by this class, and hence we will use this class to connect and send messages to the others
+ */
 
 class UserClient implements Runnable{
 
@@ -26,8 +30,7 @@ class UserClient implements Runnable{
     public int portDest;
     public int portCur;
     public InetAddress addr;
-//    public String to;
-//    public String from;
+
 
     /**
      *
@@ -49,8 +52,7 @@ class UserClient implements Runnable{
         this.portDest = portDest;
         this.portCur = portCur;
         this.addr = addr; //the other user's address
-//        this.to = to;
-//        this.from = from;
+
 
         JFrame f = new JFrame(username);
         f.setSize(600, 400);
@@ -73,8 +75,8 @@ class UserClient implements Runnable{
         try {
             clientSocket = new Socket(addr, portDest); //where you are sending the data to the P2P server
             serverSocket = new Socket(InetAddress.getLocalHost(), portCur); //send the other server
-            outToP2PDest = new DataOutputStream(clientSocket.getOutputStream());
-            outToP2PCur = new DataOutputStream(serverSocket.getOutputStream());
+            outToP2PDest = new DataOutputStream(clientSocket.getOutputStream()); // one output stream that goes to the current user
+            outToP2PCur = new DataOutputStream(serverSocket.getOutputStream()); ///one output stream that goes to the other user
             inFromP2P = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));//the messages that come through the connection from the client Socket
             inFromP2PCur = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
         } catch (Exception e) {
@@ -92,26 +94,23 @@ class UserClient implements Runnable{
         p2.add(ta, BorderLayout.CENTER);
         p2.add(p1, BorderLayout.SOUTH);
 
-
         f.setContentPane(p2);
-
+        ////////////////////////////////////////////////////////////////////////
 
         // make the button send messages to both the to and the cur user
         b1.addActionListener(new ActionListener() {
                  public void actionPerformed(ActionEvent ev) {
+                     //Format the message for the appropriate user
                      String dest = usernameFrom + ":" + "Me" + ":" + tx.getText() + "\r\n";
                      String cur = usernameFrom  + ":"  + from + ":" + tx.getText() + "\r\n";
                      tx.setText("");
                      try {
+                         // Send the message to both the current user and to the user to the other end
                          outToP2PCur.writeBytes(cur);
                          outToP2PCur.flush();
                          outToP2PDest.writeBytes(dest);
                          outToP2PDest.flush();
-////
-//                         outToP2PCur.writeBytes(cur);
-//                         outToP2PCur.flush();
-//                         outToP2PDest.writeBytes(dest);
-//                         outToP2PDest.flush();
+
                      } catch (Exception e) {
                          e.printStackTrace();
                      }
@@ -126,9 +125,11 @@ class UserClient implements Runnable{
         public void run () {
 
         try {
+            // connect the user to the other user via P2P, so that the other user knows where the message is coming from
             this.LogIn();
 
             while (true) {
+                // read the messaged to the input stream
                 String serverMsg = "";
                 serverMsg = this.inFromP2P.readLine();
                 this.ta.append(serverMsg + "\n");
@@ -140,6 +141,10 @@ class UserClient implements Runnable{
 
     }
 
+    /**
+     * Log in the users, so that we can easily indetiyfy a buffer to send messages to
+     * @throws Exception
+     */
     public void LogIn() throws Exception{
         outToP2PDest.writeBytes("Login:" + usernameFrom + "\r\n");
         outToP2PDest.flush();
@@ -147,11 +152,6 @@ class UserClient implements Runnable{
         outToP2PDest.writeBytes("Login:" + usernameTo+ "\r\n");
         outToP2PDest.flush();
 
-//        outToP2PCur.writeBytes("Login:" + usernameFrom+ "\r\n");
-//        outToP2PCur.flush();
-//
-//        outToP2PCur.writeBytes("Login:" + usernameTo + "\r\n");
-//        outToP2PCur.flush();
 
     }
 
